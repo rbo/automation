@@ -1,0 +1,20 @@
+#!/usr/bin/env ansible-playbook
+---
+- name: Start hcloud_instance
+  hosts: laptop
+  gather_facts: no
+  connection: local
+  tasks:
+    - name: Destrou cloud-workstation
+      hetzner.hcloud.hcloud_server:
+        api_token: "{{ hcloud.api_token }}"
+        name: cloud-workstation
+        location: fsn1
+        state: absent
+      register: output
+
+    - name: Update ~/.ssh/config
+      ansible.builtin.blockinfile:
+        path: "{{ home }}/.ssh/config"
+        marker: "# {mark} - cloud workstation"
+        state: absent
