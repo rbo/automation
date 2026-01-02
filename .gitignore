@@ -1,5 +1,3 @@
 meta/context
-inventory/host_vars/laptop.yaml
-inventory/host_vars/cloud-workstation.yaml
 .ansible/
 ansible-navigator.log
