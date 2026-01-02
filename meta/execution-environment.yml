@@ -12,8 +12,14 @@ dependencies:
     package_pip: ansible-core
   ansible_runner:
     package_pip: ansible-runner
-  galaxy: ee-requirements.yml
-  python: ee-python-requirements.txt
+  galaxy:
+    collections:
+      - hetzner.hcloud
+      - ansible.posix
+  python: 
+    - python-dateutil
+    - requests
+    - hcloud
   system:
     - openssh-clients
     - sshpass
