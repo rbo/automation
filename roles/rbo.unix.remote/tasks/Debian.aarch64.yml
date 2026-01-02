@@ -1,0 +1,12 @@
+---
+- name: Ensure ~/bin/ exist
+  file:
+    path: ~/bin/
+    state: directory
+    mode: 'u=rwx,g=rwx,o=rx'
+
+- name: Install powerline-go
+  get_url:
+    url: https://github.com/justjanne/powerline-go/releases/download/v1.22.1/powerline-go-linux-arm64
+    dest: ~/bin/powerline-go
+    mode: 'u=rx,g=rx,o=rx'

@@ -1,0 +1,50 @@
+[ -z "$PS1" ] && return
+echo "Source .bashrc";
+export HISTSIZE=1000000
+export HISTFILESIZE=1000000
+export HISTTIMEFORMAT="%Y-%m-%d %H:%M:%S "
+export LC_CTYPE=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
+export LANG=en_US.UTF-8
+
+function settitle() { echo -ne "\033]0;$@\007"; }
+function pwd_title() { settitle `basename $(pwd)`; }
+
+# echo 'setting up PATH,MANPATH,EDITOR,LANG env'
+export PATH=~/bin:/usr/local/sbin:/usr/local/bin:$PATH
+export EDITOR=vim
+
+if [ -x "$(command -v powerline-go)" ]; then
+    function _update_ps1() {
+        rc=$?
+        if [ -x "$(command -v powerline-go)" ]; then
+            PS1="$(powerline-go -error $rc -max-width 80 -newline -colorize-hostname -modules "ssh,host,user,cwd,perms,git,kube,exit" -priority "ssh,host,cwd,exit,git,kube" -modules-right "time" )"
+        else
+            PS1="\u@\h:\w $ "
+        fi
+    }
+
+    if [ "$TERM" != "linux" ]; then
+        PROMPT_COMMAND="_update_ps1; $PROMPT_COMMAND"
+    fi
+fi
+
+function set-prompt() {
+    export PROMPT_COMMAND="_update_ps1; $PROMPT_COMMAND"
+}
+
+function unset-prompt() {
+    unset PROMPT_COMMAND
+    export PS1="$ "
+}
+
+alias cdate='date +"%F %T %z"'
+alias gs='git status'
+alias gb='git branch --color '
+alias gbl='git bl'
+alias gc='git checkout'
+alias ga='git add'
+
+# tmux aliases
+alias tsh="tmux split-window -h"
+alias tsv="tmux split-window -v"

@@ -1,0 +1,28 @@
+---
+- name: Ensure ~/bin/ exist
+  file:
+    path: ~/bin/
+    state: directory
+    mode: 'u=rwx,g=rwx,o=rx'
+
+- name: Install jq
+  get_url:
+    url: https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64
+    dest: ~/bin/jq
+    mode: 'u=rx,g=rx,o=rx'
+
+- name: Install powerline-go
+  get_url:
+    url: https://github.com/justjanne/powerline-go/releases/download/v1.17.0/powerline-go-linux-amd64
+    dest: ~/bin/powerline-go
+    mode: 'u=rx,g=rx,o=rx'
+
+- name: Copy files/bin/* into ~/bin/
+  copy:
+    src: "{{ item }}"
+    dest: ~/bin/
+    mode: 'u=rx,g=rx,o=rx'
+  with_fileglob:
+    - "{{ role_path }}/files/bin/*"
+  tags:
+    - bin

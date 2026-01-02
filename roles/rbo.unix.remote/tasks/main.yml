@@ -1,0 +1,84 @@
+---
+- name: Remove some configuration files
+  file:
+    path: "{{item}}"
+    state: absent
+  with_items:
+    - ~/.bash_profile
+    - ~/.basrc
+    - ~/.screenrc
+    - ~/.tmux.conf
+    - ~/.gitconfig
+    - ~/.gitignore_global
+    - ~/.gitignore
+    - ~/.git
+    - ~/.tigrc
+- name: Check some directories
+  ansible.builtin.file: 
+    path: "{{item}}"
+    state: directory
+  with_items:
+    - ~/.ssh
+    - ~/.git
+    - ~/.vim
+    - ~/.vim/tmp
+    - ~/.vim/tmp/backup
+    - ~/.vim/tmp/undo
+    - ~/.vim/tmp/swap
+    - ~/.vim/autoload
+    - ~/.vim/bundle
+
+- name: chmod 0700 ~/.ssh
+  ansible.builtin.file: 
+    path: "~/.ssh" 
+    state: directory
+    mode: 0700
+
+- name: chmod 0600 ~/.ssh/authorized_keys
+  ansible.builtin.file: 
+    path: "~/.ssh/authorized_keys"
+    state: file
+    mode: 0600
+
+- name: Synchronize vim
+  ansible.builtin.synchronize:
+    src: "{{role_path}}/templates/dot_vim/{{item}}/"
+    dest: "~/.vim/{{item}}/"
+  with_items:
+    - autoload
+    - bundle
+
+- name: Copy some configuration files
+  ansible.builtin.copy: 
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    backup: yes
+  with_items:
+     - src: "{{role_path}}/templates/dot_git/git-completion.bash"
+       dest: '~/.git/git-completion.bash'
+
+- name: Setup some configuration files
+  ansible.builtin.template: 
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    backup: yes
+  with_items:
+      - src: "{{role_path}}/templates/dot_bash_profile"
+        dest: "~/.bash_profile"
+      - src: "{{role_path}}/templates/dot_bashrc.j2"
+        dest: "~/.bashrc"
+      - src: "{{role_path}}/templates/dot_screenrc.j2"
+        dest: "~/.screenrc"
+      - src: "{{role_path}}/templates/dot_tmux.conf.j2"
+        dest: "~/.tmux.conf"
+      - src: "{{role_path}}/templates/dot_git/config.j2"
+        dest: "~/.gitconfig"
+      - src: "{{role_path}}/templates/dot_git/config.j2"
+        dest: "~/.git/config"
+      - src: "{{role_path}}/templates/dot_git/ignore_global"
+        dest: "~/.git/ignore_global"
+      - src: "{{role_path}}/templates/dot_vimrc"
+        dest: "~/.vimrc"
+
+- ansible.builtin.include_tasks: 
+    file: "{{ ansible_os_family }}.{{ ansible_architecture }}.yml"

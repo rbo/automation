@@ -60,4 +60,4 @@
   gather_facts: yes
   roles:
     - hetzner-cloud-workstation
-    # - rbo.unix.remote
+    - rbo.unix.remote

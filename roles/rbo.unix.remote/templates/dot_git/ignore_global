@@ -1,0 +1,8 @@
+*~
+.DS_Store
+daily.last_run
+*.hostinfo
+.vim/.netrwhist
+.vim/tmp/backup/*
+.vim/tmp/undo/*
+.vim/tmp/swap/*
