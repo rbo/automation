@@ -1,0 +1,73 @@
+---
+- name: Upgrade all
+  ansible.builtin.dnf:
+    name: '*'
+    state: latest
+
+- name: Install software
+  ansible.builtin.dnf:
+    name:
+      - podman
+      - buildah
+      - skopeo
+      - tmux
+      - rsync
+      - tar
+      - ansible
+      - git
+      - vim
+      - davfs2
+      - python3-pip
+    state: latest
+
+# - name: Install SSH keys
+#   ansible.builtin.copy:
+#     src: "{{ item }}"
+#     dest: "/root/.ssh/"
+#     owner: root
+#     mode: 0600
+#   with_items:
+#     - id_rsa.pub
+#     - id_rsa
+
+- name: Install all ansible stuff
+  ansible.builtin.shell: |
+    python3 -m pip install ansible-builder ansible-navigator --user
+
+- name: Install oc/kubectl
+  ansible.builtin.shell: |
+    curl -# -L -o /tmp/openshift-client-linux.tar.gz https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux.tar.gz \
+    && tar xzvf /tmp/openshift-client-linux.tar.gz -C /usr/local/bin/ oc kubectl \
+    && chmod +x /usr/local/bin/oc /usr/local/bin/kubectl \
+    && rm /tmp/openshift-client-linux.tar.gz
+
+- name: Install openshift-install
+  ansible.builtin.shell: |
+    curl -# -L -o /tmp/openshift-install-linux.tar.gz https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-install-linux.tar.gz \
+    && tar xzvf /tmp/openshift-install-linux.tar.gz -C /usr/local/bin/ openshift-install \
+    && chmod +x /usr/local/bin/openshift-install \
+    && rm /tmp/openshift-install-linux.tar.gz
+
+- name: Mount storagebox if defined
+  when: storagebox is defined
+  block:
+    # https://wiki.archlinux.org/index.php/Davfs2#Storing_credentials
+    - name: Setup davfs2
+      ansible.builtin.copy:
+        content: "{{ storagebox.davfs2_secrets }}"
+        dest: /etc/davfs2/secrets
+        mode: 0600
+        owner: root
+        group: root
+
+    - name: Create davfs mount folder
+      ansible.builtin.file:
+        state: directory
+        path: /mnt/storagebox/
+
+    - name: Mount storagebox
+      ansible.posix.mount:
+        path: /mnt/storagebox
+        src: "{{ storagebox.url }}"
+        fstype: davfs
+        state: mounted

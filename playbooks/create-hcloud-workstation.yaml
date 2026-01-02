@@ -1,0 +1,63 @@
+#!/usr/bin/env ansible-playbook
+---
+- name: Start hcloud_instance
+  hosts: laptop
+  gather_facts: no
+  connection: local
+  tasks:
+    # - ansible.builtin.shell:
+    #     cmd: |
+    #       ls -la /Users/rbohne/.ssh/config
+    #   register: output
+    # - ansible.builtin.debug: var=output
+
+    - name: Populate ssh keys
+      hetzner.hcloud.hcloud_ssh_key:
+        api_token: "{{ hcloud.api_token }}"
+        name: "cloud-workstation-ssh-key"
+        public_key: "{{ lookup('file', home + '/.ssh/id_ed25519.pub') }}"
+        state: present
+
+    - hetzner.hcloud.hcloud_server:
+        api_token: "{{ hcloud.api_token }}"
+        name: cloud-workstation
+        server_type: ccx13
+        image: fedora-43
+        location: fsn1
+        state: present
+        ssh_keys:
+        - cloud-workstation-ssh-key
+      register: output
+
+    - name: Update ~/.ssh/config
+      ansible.builtin.blockinfile:
+        path: "{{ home }}/.ssh/config"
+        marker: "# {mark} - cloud workstation"
+        block: |
+          Host ws
+            HostName {{ output.hcloud_server.ipv4_address }}
+            User root
+
+    - name: Wait 300 seconds for port 22 to become open
+      delegate_to: localhost
+      wait_for:
+        port: 22
+        host: '{{ output.hcloud_server.ipv4_address }}'
+        delay: 1
+        timeout: 300
+      connection: local
+
+    - name: Create temp. inventory
+      delegate_to: localhost
+      add_host:
+        hostname: cloud-workstation
+        ansible_user: root
+        ansible_host: '{{ output.hcloud_server.ipv4_address }}'
+        groups: hetzner
+
+- name: Basis installation
+  hosts: cloud-workstation
+  gather_facts: yes
+  roles:
+    - hetzner-cloud-workstation
+    # - rbo.unix.remote
