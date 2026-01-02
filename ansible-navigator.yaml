@@ -1,12 +1,18 @@
 ---
 ansible-navigator:
   execution-environment:
-    # container-options:
-    #   - --net=host
-    image: quay.io/rbohne/automation:ee-202601021550
+    volume-mounts:
+      - src: /Users
+        dest: /Users
+        options: "Z"
+      - src: /Volumes/Development
+        dest: /Volumes/Development
+        options: "Z"
+
+    image: quay.io/rbohne/automation:ee-202601021803
   logging:
     level: info
   mode: stdout
-  # playbook-artifact:
-  #   enable: true
-  #   save-as: /tmp/hetzner-ocp4-{playbook_name}-artifact-{time_stamp}.json
+  playbook-artifact:
+    enable: true
+    save-as: /tmp/hetzner-ocp4-{playbook_name}-artifact-{time_stamp}.json

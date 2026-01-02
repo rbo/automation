@@ -1,6 +1,0 @@
-# pkgconf-pkg-config
-# libvirt-client
-# libvirt-libs
-# libvirt-devel
-# gcc
-# python38-devel

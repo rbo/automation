@@ -14,7 +14,10 @@ dependencies:
     package_pip: ansible-runner
   galaxy: ee-requirements.yml
   python: ee-python-requirements.txt
-  system: ee-bindep.txt
+  system:
+    - openssh-clients
+    - sshpass
+    - less
 
 additional_build_steps:
   prepend_base:
