@@ -1,0 +1,30 @@
+---
+version: 3
+images:
+  base_image:
+    name: quay.io/fedora/fedora:43
+
+options:
+  package_manager_path: /usr/bin/dnf
+
+dependencies:
+  ansible_core:
+    package_pip: ansible-core
+  ansible_runner:
+    package_pip: ansible-runner
+  galaxy: ee-requirements.yml
+  python: ee-python-requirements.txt
+  system: ee-bindep.txt
+
+additional_build_steps:
+  prepend_base:
+    - RUN dnf install -y python3 python3-pip python3-libdnf5
+    # # Import for uamqp, deependencies an collection
+    # - RUN dnf install -y cmake gcc gcc-c++ make openssl-devel python3-devel
+
+  # append_final:
+    # # Upgrade pyopenssl to solve
+    # # The error was: AttributeError: module 'lib' has no attribute 'X509_V_FLAG_CB_ISSUER_CHECK'
+    # - RUN pip install pyopenssl --upgrade
+    # # Needed for tekton
+    # - RUN pip install pre-commit

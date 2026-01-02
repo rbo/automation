@@ -1,0 +1,12 @@
+---
+ansible-navigator:
+  execution-environment:
+    # container-options:
+    #   - --net=host
+    image: quay.io/rbohne/automation:ee-202601021550
+  logging:
+    level: info
+  mode: stdout
+  # playbook-artifact:
+  #   enable: true
+  #   save-as: /tmp/hetzner-ocp4-{playbook_name}-artifact-{time_stamp}.json
